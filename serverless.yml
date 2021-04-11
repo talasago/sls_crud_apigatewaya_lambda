@@ -19,37 +19,21 @@ frameworkVersion: '1'
 provider:
   name: aws
   runtime: python3.8
-
   stage: dev
   region: ap-northeast-1
+  role: ${file(./config/role.yml)}
 
-#  iamRoleStatements:
-#    - Effect: "Allow"
-#      Action:
-#        - "s3:ListBucket"
-#      Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "ServerlessDeploymentBucket" } ] ]  }
-#    - Effect: "Allow"
-#      Action:
-#        - "s3:PutObject"
-#      Resource:
-#        Fn::Join:
-#          - ""
-#          - - "arn:aws:s3:::"
-#            - "Ref" : "ServerlessDeploymentBucket"
-#            - "/*"
+custom:
+  environment:
+    cluster_arn: ${file(./config/env.yml):cluster_arn}
+    secret_arn: ${file(./config/env.yml):secret_arn}
+    database_name: ${file(./config/env.yml):database_name}
+    schema_name: ${file(./config/env.yml):schema_name}
 
-# you can define service wide environment variables here
-#  environment:
-#    variable1: value1
-
-# you can add packaging information here
-#package:
-#  include:
-#    - include-me.py
-#    - include-me-dir/**
-#  exclude:
-#    - exclude-me.py
-#    - exclude-me-dir/**
+package:
+  exclude:
+    - config/**
+    - testdata*.json
 
 functions:
   get:
@@ -59,20 +43,37 @@ functions:
           path: /
           method: get
   post:
-    handler: post.hello
+    handler: post.regist
     events:
       - http:
           path: /
           method: post
+    layers:
+      - { Ref: CommonLambdaLayer }
+    environment:
+      CLUSTER_ARN: ${self:custom.environment.cluster_arn}
+      SECRET_ARN: ${self:custom.environment.secret_arn}
+      DATABASE_NAME: ${self:custom.environment.database_name}
+      SCHEMA_NAME: ${self:custom.environment.schema_name}
   delete:
     handler: delete.hello
     events:
       - http:
           path: /
           method: delete
+
   put:
     handler: put.hello
     events:
       - http:
           path: /
           method: put
+layers:
+  common:
+    path: layers
+
+
+#resources:
+#  Resources:
+#    iamRole:
+#      Type: AWS:IAM:Role
