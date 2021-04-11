@@ -1,9 +1,7 @@
 import json
 from crud_test import CrudTest
-from common_func import *
 
-
-def regist(event, context):
+def create(event, context):
     # 更新パラメータ取得
     body = event.get('body')
 
@@ -33,15 +31,17 @@ def regist(event, context):
     except:
         raise TypeError('param type error')
 
-    sql = f"insert into crud_test (content) values (:content);"
-    param = [{'name': 'content', 'value': { 'stringValue': content }},]
 
-    crud_data = CrudTest(content=content)
-    created_id = crud_data.insert(sql, param)
+    crud_test_data = CrudTest(content=content)
+    created_id = crud_test_data.insert()
+
+    body = {
+        "created_id": created_id
+    }
 
     response = {
         "statusCode": 200,
-        "message": "data created",
-        "created_id": created_id
+        "body": json.dumps(body)
     }
+
     return response

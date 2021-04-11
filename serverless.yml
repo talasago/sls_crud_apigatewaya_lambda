@@ -37,13 +37,21 @@ package:
 
 functions:
   get:
-    handler: get.hello
+    handler: get.read
     events:
       - http:
           path: /
           method: get
+    layers:
+      - { Ref: CommonLambdaLayer }
+    environment:
+      CLUSTER_ARN: ${self:custom.environment.cluster_arn}
+      SECRET_ARN: ${self:custom.environment.secret_arn}
+      DATABASE_NAME: ${self:custom.environment.database_name}
+      SCHEMA_NAME: ${self:custom.environment.schema_name}
+
   post:
-    handler: post.regist
+    handler: post.create
     events:
       - http:
           path: /
@@ -55,15 +63,19 @@ functions:
       SECRET_ARN: ${self:custom.environment.secret_arn}
       DATABASE_NAME: ${self:custom.environment.database_name}
       SCHEMA_NAME: ${self:custom.environment.schema_name}
+
   delete:
-    handler: delete.hello
+    handler: delete.delete
     events:
       - http:
           path: /
           method: delete
+    response:
+      statusCodes: 200
+      application/json: Empty
 
   put:
-    handler: put.hello
+    handler: ut.update
     events:
       - http:
           path: /

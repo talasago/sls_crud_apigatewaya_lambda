@@ -20,7 +20,7 @@ class CrudTest:
                             secretArn = secret_arn,
                             )
 
-    def _rds_commit_transaction(self,tran_id):
+    def _rds_commit_transaction(self,   tran_id):
         return rdsData.commit_transaction(
                             resourceArn = cluster_arn,
                             transactionId = tran_id,
@@ -28,7 +28,7 @@ class CrudTest:
                             )
 
     # AuroraServerlessへのsql実行メソッド
-    def _rds_exe_statement(self,exe_sql, param = [], tran_id=None):
+    def _rds_exe_statement(self, exe_sql, param = None, tran_id=""):
         return rdsData.execute_statement(
                         resourceArn = cluster_arn,
                         secretArn = secret_arn,
@@ -37,11 +37,29 @@ class CrudTest:
                         parameters = param,
                         transactionId = tran_id)
 
-    def insert(self, exe_sql, param):
+    def select(self):
+        sql = ""
+        param = []
+
+        if self.id == None:
+            sql =  f"select * from crud_test;"
+        else:
+            sql =  f"select * from crud_test where id = :id;"
+            param = [{'name': 'id', 'value': { 'longValue': self.id }}]
+
+        exe_statement_response = self._rds_exe_statement(exe_sql = sql, param = param)
+        print(exe_statement_response)
+
+        return exe_statement_response['records']
+
+    def insert(self):
         res_begin_transaction = self._rds_begin_transaction()
         tran_id = res_begin_transaction['transactionId']
 
-        res_exe_statement = self._rds_exe_statement(exe_sql,param,tran_id)
+        sql = f"insert into crud_test (content) values (:content);"
+        param = [{'name': 'content', 'value': { 'stringValue': self.content }},]
+
+        res_exe_statement = self._rds_exe_statement(sql, param, tran_id)
 
         res_commit_transaction = self._rds_commit_transaction(tran_id)
 
@@ -54,3 +72,7 @@ class CrudTest:
 
         # 新規付番されたIDを返す
         return res_exe_statement['generatedFields'][0]['longValue']
+
+##   def update:
+
+##    def delete

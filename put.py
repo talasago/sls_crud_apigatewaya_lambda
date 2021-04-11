@@ -1,7 +1,7 @@
 import json
 
 
-def hello(event, context):
+def updates(event, context):
     body = {
         "message": "Go Serverless v1.0! Your function executed PUT method successfully!",
         "input": event
