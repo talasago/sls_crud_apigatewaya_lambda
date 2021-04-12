@@ -8,31 +8,28 @@ def create(event, context):
     print(event)
     print(body)
 
-    # 必須チェック
     # パラメータがないならばエラー
     if body == None:
-        raise
-    # パラメータがないならばエラー
+         raise
+
     body_load = json.loads(body)
+
+    # パラメータがないならばエラー
     if body_load == None:
         raise
     # 更新パラメータがないならばエラー
-    if not 'content' in body_load:
+    if not 'id' in body_load or not 'content' in body_load:
         raise
 
+    id = ""
     content = ""
-
-    #error_massage = req_param_require_validation(body=req_body,
-    #                                            require_elem=['content'])
-    #if error_massage != "":
-    #    raise error_massage
     try:
+        id      = int(body_load['id'])
         content = str(body_load['content'])
     except:
         raise TypeError('param type error')
 
-
-    crud_test_data = CrudTest(content=content)
+    crud_test_data = CrudTest(id=id, content=content)
     created_id = crud_test_data.insert()
 
     body = {

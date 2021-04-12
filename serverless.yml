@@ -70,16 +70,28 @@ functions:
       - http:
           path: /
           method: delete
-    response:
-      statusCodes: 200
-      application/json: Empty
+    layers:
+      - { Ref: CommonLambdaLayer }
+    environment:
+      CLUSTER_ARN: ${self:custom.environment.cluster_arn}
+      SECRET_ARN: ${self:custom.environment.secret_arn}
+      DATABASE_NAME: ${self:custom.environment.database_name}
+      SCHEMA_NAME: ${self:custom.environment.schema_name}
 
   put:
-    handler: ut.update
+    handler: put.update
     events:
       - http:
           path: /
           method: put
+    layers:
+      - { Ref: CommonLambdaLayer }
+    environment:
+      CLUSTER_ARN: ${self:custom.environment.cluster_arn}
+      SECRET_ARN: ${self:custom.environment.secret_arn}
+      DATABASE_NAME: ${self:custom.environment.database_name}
+      SCHEMA_NAME: ${self:custom.environment.schema_name}
+
 layers:
   common:
     path: layers
